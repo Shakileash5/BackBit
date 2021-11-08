@@ -13,6 +13,8 @@ public class DownloadFile {
         int bytesWritten = 0;
         int toBeWritten = 1024;
 
+        System.out.println("Downloading file..."+bis.available());
+
         while(bis.available() > 0){
             // read from the input stream
             if(toBeRead > bis.available()){
@@ -28,7 +30,7 @@ public class DownloadFile {
             }
             bos.write(data,bytesWritten,toBeWritten);
             bytesWritten += toBeWritten;
-            break;
+            //break;
 
         }
         return true;
@@ -45,7 +47,10 @@ public class DownloadFile {
         int fileSize = 0;
         try {
             URL urlObj = new URL(url);
+
             HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
+            //conn.setRequestMethod("HEAD"); 
+            fileSize = conn.getContentLength();
             System.out.println("URL: "+url);
             
             if(conn.getResponseCode() != 200){
@@ -60,18 +65,19 @@ public class DownloadFile {
             fileNameUrl += "." + extension; // add extention to the file name
             System.out.println("Extension: " + extension);
 
+            if(Files.exists(Paths.get(fileNameUrl))){
+                System.out.println("File already exists");
+                //flagFileExist = 1;
+                
+                //System.exit(0);
+            }
+
             // get the file size
             fileSize = Integer.parseInt(conn.getHeaderField("content-length"));
             System.out.println("File Size: " + fileSize);
 
             // check if the file already exists
             System.out.println("File Name: " + fileNameUrl);
-            if(Files.exists(Paths.get(fileNameUrl))){
-                System.out.println("File already exists");
-                flagFileExist = 1;
-                //System.exit(0);
-            }
-
             
 
             // download the file
@@ -93,22 +99,26 @@ public class DownloadFile {
                 long existingFileSize = fos.getChannel().size();
                 System.out.println("Existing File Size: " + existingFileSize);
                 if(existingFileSize < fileSize){
-                    conn.setRequestProperty("Range", "bytes=" + existingFileSize + "-" + fileSize);
-                    InputStream is = conn.getInputStream();
+                    HttpURLConnection conn2 = (HttpURLConnection) urlObj.openConnection();
+                    //conn2.setRequestMethod("HEAD"); 
+                    conn2.setRequestProperty("Range", "bytes=" + existingFileSize + "-" + fileSize);
+                    InputStream is = conn2.getInputStream();
                     BufferedInputStream bis = new BufferedInputStream(is);
                     downloadFile(fileSize,bis,bos);
-                    bos.close();
-                bis.close();
+                    
+                    bis.close();
                 
                 }
-                
+                bos.close();
                 fos.close();
+
             }
             
 
         }
         catch(Exception e) {
             System.out.println("Error: " + e + e.getStackTrace());
+            e.printStackTrace(System.out);
         }
     }
 
