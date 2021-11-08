@@ -12,6 +12,11 @@ public class Proto {
         try{
             URL url = new URL(link); // Create an URL object
             HttpURLConnection conn = (HttpURLConnection) url.openConnection(); // Open a connection to the URL
+            for(int i=1;i<=20;i++){  
+                if(conn.getHeaderFieldKey(i)==null) break;
+                System.out.println(conn.getHeaderFieldKey(i)+" = "+conn.getHeaderField(i));  
+                
+            }  
 
             int fieldValue = conn.getContentLength();// Get the content disposition field value
             System.out.println(fieldValue);
