@@ -44,7 +44,9 @@ public class DownloadManager {
             this.fileSize = conn.getContentLength();
             // Get the file name from the URL
             this.fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
-            this.fileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')); // remove the extension if any
+            if(this.fileName.lastIndexOf('.') != -1){
+                this.fileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')); // remove the extension if any
+            }
 
             // set extention
             this.extention = MimeTypes.getDefaultExt(this.mimeType);
@@ -56,6 +58,12 @@ public class DownloadManager {
         return ;
     }
 
-    
+    public void download(){
+        setMetadata();
+        DownloadPart obj = new DownloadPart(this.urlObj, this.fileName, "/", 0, (int)this.fileSize);
+        obj.download();
+
+        return;
+    }
 
 }

@@ -37,8 +37,9 @@ public class DownloadPart {
         this.savePath = savePath;
         this.rangeStart = rangeStart;
         this.rangeEnd = rangeEnd;
-        this.fileSize = rangeStart - rangeEnd;
+        this.fileSize = rangeEnd - rangeStart;
         this.downloadedSize = 0;
+        System.out.println("Downloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
     }
 
    /*
@@ -80,39 +81,48 @@ public class DownloadPart {
    /* The function checks if binaries exists in the directory. if so, then the download resumes from the last point.
     * @return: None
     */
-    public void download() throws IOException {
-        // create the file
-        File file = new File(this.savePath + this.fileName);
-        
-        // append the binaries into file if the file exists
-        if(file.exists()){
-            this.append = true;
+    public void download(){
+
+        try{
+            // create the file
+            File file = new File(this.savePath + this.fileName);
+            
+            // append the binaries into file if the file exists
+            if(file.exists()){
+                this.append = true;
+                System.out.println("Appending to file: " + this.fileName);
+            }
+            else{
+                this.append = false;
+            }
+            
+            // create the output stream
+            FileOutputStream fos = new FileOutputStream(this.fileName,this.append);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            long existingFileSize = fos.getChannel().size();
+
+            if(existingFileSize<this.fileSize){
+                this.rangeStart = (int)existingFileSize + this.rangeStart;
+            }
+
+            URL obj = new URL(this.url.toString());
+            // create the input stream
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            //conn.setRequestProperty("Range", "bytes=" + this.rangeStart + "-" + this.rangeEnd);
+            BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+            System.out.println("Downloading file..."+conn.getInputStream().available());
+            System.out.println("Downloading code..."+conn.getResponseCode());
+            // download the file
+            this.downloadContent(bis, bos);
+
+            // close the streams
+            bis.close();
+            bos.close();
         }
-        else{
-            this.append = false;
+        catch(Exception e){
+            System.out.println("Error: "+e.getMessage());
+            e.printStackTrace();
         }
-
-        // create the output stream
-        FileOutputStream fos = new FileOutputStream(file,this.append);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        long existingFileSize = fos.getChannel().size();
-
-        if(existingFileSize<this.fileSize){
-            this.rangeStart = (int)existingFileSize + this.rangeStart;
-        }
-
-        // create the input stream
-        HttpURLConnection conn = (HttpURLConnection) this.url.openConnection();
-        conn.setRequestProperty("Range", "bytes=" + this.rangeStart + "-" + this.rangeEnd);
-        BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-
-        // download the file
-        this.downloadContent(bis, bos);
-
-        // close the streams
-        bis.close();
-        bos.close();
-
         return ;
     }
 
