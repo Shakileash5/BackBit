@@ -53,51 +53,30 @@ public class DownloadPart {
         byte[] data = new byte[this.fileSize];
         int bytesRead = 0;
         int bytesFrom = 0;
-        int toBeRead = 1378;
+        int toBeRead = 1378; // 1378 bytes buffer size
         int bytesWritten = 0;
-        int toBeWritten = 1378;
-        int i = 0;
+        int toBeWritten = 1378; // 1378 bytes buffer size
         
         System.out.println("Downloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
-        if(fileSize<toBeRead)
+
+        if(fileSize<toBeRead) // if the file size is less than the buffer size
             toBeRead = fileSize;
         System.out.println("Downloading to be read" + toBeRead);
-        while((bytesRead = bis.read(data, bytesFrom, toBeRead)) >0){
+
+        while((bytesRead = bis.read(data, bytesFrom, toBeRead)) >0){ // read the input stream
             System.out.println("Reading: " + bytesFrom + " till: " + toBeRead + " Now read: "+bytesRead);
             bytesFrom += bytesRead;
-            if((fileSize-bytesFrom) < toBeRead){
+            if((fileSize-bytesFrom) < toBeRead){ // if the remaining size is less than the buffer size
                 toBeRead = fileSize - bytesFrom;
             }
-            if(toBeWritten > (fileSize - bytesWritten)){
+            if(toBeWritten > (fileSize - bytesWritten)){ // if the remaining size is less than the buffer size
                 toBeWritten = fileSize - bytesWritten;
             }
             System.out.println("Writing: " + bytesWritten + " till: " + toBeWritten);
             bos.write(data,bytesWritten,toBeWritten);
             bytesWritten += toBeWritten;
-            if(i == 78){
-                break;
-            }
-            i++;
         }
-        /*
-        while(bis.available() > 0){
-            // read from the input stream
-            if(toBeRead > bis.available()){
-                toBeRead = bis.available();
-            }
-            System.out.println("Reading: " + bytesFrom + " till: " + toBeRead + " Available: "+ bis.available());
-            bytesRead = bis.read(data,bytesFrom,toBeRead);
-            bytesFrom += bytesRead;
-
-            // write into the file
-            if(toBeWritten > fileSize - bytesWritten){
-                toBeWritten = fileSize - bytesWritten;
-            }
-            bos.write(data,bytesWritten,toBeWritten);
-            bytesWritten += toBeWritten;
-            //break;
-
-        }*/
+        
         return true;
     }
 

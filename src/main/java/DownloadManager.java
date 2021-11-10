@@ -30,6 +30,21 @@ public class DownloadManager {
         
     }
 
+    private void setFileData(String url, String mimeType){
+        String extentionFromUrl = new String();
+
+        // clean mimeType
+        if(mimeType.contains(";")){
+            mimeType = mimeType.substring(0, mimeType.indexOf(";"));
+        }
+         // Get the file name from the URL
+         this.fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
+         if(this.fileName.lastIndexOf('.') != -1){
+             extentionFromUrl = this.fileName.substring(this.fileName.lastIndexOf('.'), this.fileName.length()); // get the extention from the URL
+             this.fileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')); // remove the extension if any
+         }
+    }
+
     /*
      * This method is responsible for handling the metadata of the file.
      * 
@@ -42,17 +57,27 @@ public class DownloadManager {
             URLConnection conn = urlObj.openConnection();
             this.mimeType = conn.getContentType();
             this.fileSize = conn.getContentLength();
-            
+            String extentionFromUrl = new String();
+
             // Get the file name from the URL
             this.fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
             if(this.fileName.lastIndexOf('.') != -1){
+                extentionFromUrl = this.fileName.substring(this.fileName.lastIndexOf('.'), this.fileName.length()); // get the extention from the URL
                 this.fileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')); // remove the extension if any
             }
 
+            // clean mimeType
+            if(mimeType.contains(";")){
+                mimeType = mimeType.substring(0, mimeType.indexOf(";"));
+            }
             // set extention
             this.extention = MimeTypes.getDefaultExt(this.mimeType);
+            if(extentionFromUrl.length() > 0 && (this.extention.length() == 0 || this.extention.equals("unknown"))){
+                this.extention = extentionFromUrl;
+            }
+            System.out.println("File name: " + this.fileName + this.extention + "Mime: " + this.mimeType);
             this.fileName = this.fileName + "." + this.extention;
-            //conn.disconnect();
+            
         }
         catch(IOException e){
             System.out.println("IOException: " + e.getMessage());
