@@ -55,7 +55,6 @@ public class DownloadPart {
         int bytesFrom = 0;
         int toBeRead = 1378; // 1378 bytes buffer size
         int bytesWritten = 0;
-        int toBeWritten = 1378; // 1378 bytes buffer size
         
         System.out.println("Downloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
 
@@ -69,12 +68,10 @@ public class DownloadPart {
             if((fileSize-bytesFrom) < toBeRead){ // if the remaining size is less than the buffer size
                 toBeRead = fileSize - bytesFrom;
             }
-            if(toBeWritten > (fileSize - bytesWritten)){ // if the remaining size is less than the buffer size
-                toBeWritten = fileSize - bytesWritten;
-            }
-            System.out.println("Writing: " + bytesWritten + " till: " + toBeWritten);
-            bos.write(data,bytesWritten,toBeWritten);
-            bytesWritten += toBeWritten;
+            
+            System.out.println("Writing: " + bytesWritten + " till: " + bytesRead);
+            bos.write(data,bytesWritten,bytesRead);
+            bytesWritten += bytesRead;
         }
         
         return true;
