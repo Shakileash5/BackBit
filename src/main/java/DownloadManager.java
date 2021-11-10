@@ -42,6 +42,7 @@ public class DownloadManager {
             URLConnection conn = urlObj.openConnection();
             this.mimeType = conn.getContentType();
             this.fileSize = conn.getContentLength();
+            
             // Get the file name from the URL
             this.fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
             if(this.fileName.lastIndexOf('.') != -1){
@@ -51,6 +52,7 @@ public class DownloadManager {
             // set extention
             this.extention = MimeTypes.getDefaultExt(this.mimeType);
             this.fileName = this.fileName + "." + this.extention;
+            //conn.disconnect();
         }
         catch(IOException e){
             System.out.println("IOException: " + e.getMessage());

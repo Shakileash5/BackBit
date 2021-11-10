@@ -3,6 +3,8 @@ package src.main.java;
 import java.io.*;
 import java.net.*;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import src.main.java.MimeTypes.*;
 
 /*
@@ -51,12 +53,33 @@ public class DownloadPart {
         byte[] data = new byte[this.fileSize];
         int bytesRead = 0;
         int bytesFrom = 0;
-        int toBeRead = 1024;
+        int toBeRead = 1378;
         int bytesWritten = 0;
-        int toBeWritten = 1024;
-
-        System.out.println("Downloading file..."+bis.available());
-
+        int toBeWritten = 1378;
+        int i = 0;
+        
+        System.out.println("Downloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
+        if(fileSize<toBeRead)
+            toBeRead = fileSize;
+        System.out.println("Downloading to be read" + toBeRead);
+        while((bytesRead = bis.read(data, bytesFrom, toBeRead)) >0){
+            System.out.println("Reading: " + bytesFrom + " till: " + toBeRead + " Now read: "+bytesRead);
+            bytesFrom += bytesRead;
+            if((fileSize-bytesFrom) < toBeRead){
+                toBeRead = fileSize - bytesFrom;
+            }
+            if(toBeWritten > (fileSize - bytesWritten)){
+                toBeWritten = fileSize - bytesWritten;
+            }
+            System.out.println("Writing: " + bytesWritten + " till: " + toBeWritten);
+            bos.write(data,bytesWritten,toBeWritten);
+            bytesWritten += toBeWritten;
+            if(i == 78){
+                break;
+            }
+            i++;
+        }
+        /*
         while(bis.available() > 0){
             // read from the input stream
             if(toBeRead > bis.available()){
@@ -74,7 +97,7 @@ public class DownloadPart {
             bytesWritten += toBeWritten;
             //break;
 
-        }
+        }*/
         return true;
     }
 
@@ -95,7 +118,7 @@ public class DownloadPart {
             else{
                 this.append = false;
             }
-            
+            System.out.println("fileName" + this.fileName);
             // create the output stream
             FileOutputStream fos = new FileOutputStream(this.fileName,this.append);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
@@ -107,11 +130,12 @@ public class DownloadPart {
 
             URL obj = new URL(this.url.toString());
             // create the input stream
+            HttpsURLConnection conn2 = (HttpsURLConnection) obj.openConnection();
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
-            //conn.setRequestProperty("Range", "bytes=" + this.rangeStart + "-" + this.rangeEnd);
-            BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-            System.out.println("Downloading file..."+conn.getInputStream().available());
-            System.out.println("Downloading code..."+conn.getResponseCode());
+            conn.setRequestProperty("Range", "bytes=" + this.rangeStart + "-" + this.rangeEnd);
+            BufferedInputStream bis = new BufferedInputStream(conn2.getInputStream());
+            System.out.println("Downloading file..."+conn2.getInputStream().available());
+            System.out.println("Downloading code..."+conn2.getContentLength());
             // download the file
             this.downloadContent(bis, bos);
 
