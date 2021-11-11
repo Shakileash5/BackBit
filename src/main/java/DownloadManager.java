@@ -3,8 +3,7 @@ package src.main.java;
 import java.io.*;
 import java.net.*;
 import java.security.*;
-import java.util.Arrays;
-
+import java.util.*;
 import src.main.java.*;
 
 /*
@@ -23,6 +22,8 @@ public class DownloadManager {
     private long downloadedSize;
     private URL urlObj;
     private String extention;
+    private int DEFAULT_PART = 8;
+    private List<ArrayList> parts;
     
     public DownloadManager(String url){
         this.url = url;
@@ -104,10 +105,39 @@ public class DownloadManager {
         return ;
     }
 
+
+    private List divideParts(long fileSize, int parts){
+        List<ArrayList<Long>> partList = new ArrayList<>();
+        ArrayList<Long>part;
+        long partSize = fileSize/parts;
+        long remainingBytes = fileSize%parts;
+        long startByte = 0;
+        long endByte = partSize;
+
+        for(int i=0; i<parts; i++){
+            part = new ArrayList<>();
+            part.add(startByte);
+            part.add(endByte);
+
+            partList.add(part);
+            startByte = endByte + 1;
+            endByte += partSize;
+
+            if(i == parts-2){
+                endByte += remainingBytes;
+            }
+            
+        }
+        return partList;
+    }
+
     public void download(){
         setMetadata();
-        DownloadPart obj = new DownloadPart(this.urlObj, this.fileName, "/", 0, (int)this.fileSize);
-        obj.download();
+        this.parts= this.divideParts(fileSize, this.DEFAULT_PART);
+        System.out.println("The file Size: "+ this.fileSize);
+        System.out.println(this.parts.toString());
+        //DownloadPart obj = new DownloadPart(this.urlObj, this.fileName, "/", 0, (int)this.fileSize);
+        //obj.download();
 
         return;
     }
