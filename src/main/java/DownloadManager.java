@@ -64,7 +64,11 @@ public class DownloadManager {
             extentionFromUrl = this.fileName.substring(this.fileName.lastIndexOf('.'), this.fileName.length()); // get the extention from the URL
             this.fileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')); // remove the extension if any
         }
-        System.out.println("extentio from url: "+extentionFromUrl);
+        
+        if(MimeTypes.lookupMimeType(extentionFromUrl) == null){
+            extentionFromUrl = "";
+        }
+        System.out.println("extention from url: "+extentionFromUrl);
         if(extentionFromUrl.length()<0 || extentionFromUrl.equals("")){
             System.out.println("No extention found");
             this.fileName = "download_" + this.getHash(url); // if no extention found, use the hash of the url as the file name
@@ -80,7 +84,7 @@ public class DownloadManager {
         if(extentionFromUrl.length() > 0 && (this.extention.length() == 0 || this.extention.equals("unknown"))){
             this.extention = extentionFromUrl;
         }
-        System.out.println("File name: " + this.fileName + this.extention + "Mime: " + this.mimeType);
+        System.out.println("File name: " + this.fileName + "." + this.extention + " Mime: " + this.mimeType);
         this.fileName = this.fileName + "." + this.extention;
     }
     
