@@ -2,10 +2,10 @@ package src.main.java;
 
 import java.io.*;
 import java.net.*;
-
+import java.nio.CharBuffer;
+import java.lang.Thread;
 import javax.net.ssl.HttpsURLConnection;
 
-import src.main.java.MimeTypes.*;
 
 /*
  * This class downloads a part of file from a URL and saves it to a local file.
@@ -13,7 +13,7 @@ import src.main.java.MimeTypes.*;
  * @version: 1.0
  */
 
-public class DownloadPart {
+public class DownloadPart extends Thread {
     
     private URL url;
     private String fileName;
@@ -41,7 +41,11 @@ public class DownloadPart {
         this.rangeEnd = rangeEnd;
         this.fileSize = rangeEnd - rangeStart;
         this.downloadedSize = 0;
-        System.out.println("Downloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
+        System.out.println("\n\nDownloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
+    }
+
+    public String getFileName() {
+        return this.fileName;
     }
 
    /*
@@ -56,7 +60,7 @@ public class DownloadPart {
         int toBeRead = 1378; // 1378 bytes buffer size
         int bytesWritten = 0;
         
-        System.out.println("Downloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
+        System.out.println("\nDownloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
 
         if(fileSize<toBeRead) // if the file size is less than the buffer size
             toBeRead = fileSize;
@@ -80,7 +84,8 @@ public class DownloadPart {
    /* The function checks if binaries exists in the directory. if so, then the download resumes from the last point.
     * @return: None
     */
-    public void download(){
+    @Override
+    public void run(){
 
         try{
             // create the file
@@ -106,12 +111,12 @@ public class DownloadPart {
 
             URL obj = new URL(this.url.toString());
             // create the input stream
-            HttpsURLConnection conn2 = (HttpsURLConnection) obj.openConnection();
-            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) obj.openConnection();
+            //HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
             conn.setRequestProperty("Range", "bytes=" + this.rangeStart + "-" + this.rangeEnd);
-            BufferedInputStream bis = new BufferedInputStream(conn2.getInputStream());
-            System.out.println("Downloading file..."+conn2.getInputStream().available());
-            System.out.println("Downloading code..."+conn2.getContentLength());
+            BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+            System.out.println("\n\nDownloading code..."+conn.getContentLength());
+            System.out.println("Downloading range... "+ this.rangeStart + "-" + this.rangeEnd);
             // download the file
             this.downloadContent(bis, bos);
 

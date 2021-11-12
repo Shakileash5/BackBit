@@ -18,7 +18,7 @@ public class DownloadManager {
     private String url;
     private String fileName;
     private String mimeType;
-    private long fileSize;
+    private int fileSize;
     private long downloadedSize;
     private URL urlObj;
     private String extention;
@@ -100,6 +100,8 @@ public class DownloadManager {
             URLConnection conn = urlObj.openConnection();
             this.mimeType = conn.getContentType();
             this.fileSize = conn.getContentLength();
+            System.out.println("the file size :: "+ conn.getHeaderField("content-length"));
+            System.out.println("the file size :: " + this.fileSize);
             
             this.setFileData(url, mimeType);
         }
@@ -109,14 +111,23 @@ public class DownloadManager {
         return ;
     }
 
+    /*
+     * This method is responsible for dividing the file into equal parts
+     * and set ranges for each parts to be downloaded.
+     * 
+     * @param: fileSize - the size of the file to be downloaded.
+     * @param: parts - the number of parts to be downloaded.
+     * 
+     * @return: partList - the list of ranges to be downloaded.
+     */
+    private List divideParts(int fileSize, int parts){
 
-    private List divideParts(long fileSize, int parts){
-        List<ArrayList<Long>> partList = new ArrayList<>();
-        ArrayList<Long>part;
-        long partSize = fileSize/parts;
-        long remainingBytes = fileSize%parts;
-        long startByte = 0;
-        long endByte = partSize;
+        List<ArrayList<Integer>> partList = new ArrayList<>(); // list of ranges to be downloaded
+        ArrayList<Integer>part;
+        int partSize = fileSize/parts; // size of each part
+        int remainingBytes = fileSize%parts; // remaining bytes after dividing the file into parts
+        int startByte = 0;
+        int endByte = partSize;
 
         for(int i=0; i<parts; i++){
             part = new ArrayList<>();
@@ -127,7 +138,7 @@ public class DownloadManager {
             startByte = endByte + 1;
             endByte += partSize;
 
-            if(i == parts-2){
+            if(i == parts-2){ // last part has remaining bytes
                 endByte += remainingBytes;
             }
             
@@ -135,13 +146,61 @@ public class DownloadManager {
         return partList;
     }
 
+    private void joinParts(DownloadPart obj){
+        try{
+            
+            FileInputStream fis = new FileInputStream(obj.getFileName());
+            BufferedInputStream bis = new BufferedInputStream(fis);
+
+            FileOutputStream fos = new FileOutputStream(this.fileName, true);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+            int data;
+            while((data = bis.read()) != -1){
+                bos.write(data);
+            }
+
+            bos.close();
+            bis.close();
+
+        }
+        catch(IOException e){
+            System.out.println("IOException: " + e.getMessage());
+        }
+        
+    }
+
+
     public void download(){
         setMetadata();
-        this.parts= this.divideParts(fileSize, this.DEFAULT_PART);
+        this.parts= this.divideParts(fileSize,4); // this.DEFAULT_PART
         System.out.println("The file Size: "+ this.fileSize);
         System.out.println(this.parts.toString());
-        //DownloadPart obj = new DownloadPart(this.urlObj, this.fileName, "/", 0, (int)this.fileSize);
-        //obj.download();
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+
+        List<DownloadPart> downloadParts = new ArrayList<>();
+
+        for(int i=0; i<this.parts.size(); i++){
+            ArrayList<Integer> part = this.parts.get(i);
+            System.out.println("Part: "+i+" Start: "+part.get(0)+" End: "+part.get(1));
+            String partFileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')) + "_" + i + this.fileName.substring(this.fileName.lastIndexOf('.'), this.fileName.length());
+            System.out.println("Part File Name: "+partFileName);
+            DownloadPart downloadPart = new DownloadPart(this.urlObj,partFileName,"/",part.get(0),part.get(1));
+            downloadPart.start();
+            downloadParts.add(downloadPart);
+                
+        }
+        
+        for(DownloadPart downloadPart: downloadParts){
+            try{
+                downloadPart.join();
+                System.out.println("-------- completed ----------" + downloadPart.getFileName());
+                this.joinParts(downloadPart);
+            }
+            catch(InterruptedException e){
+                System.out.println("InterruptedException: " + e.getMessage());
+            }
+        }
 
         return;
     }
