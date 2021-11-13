@@ -22,16 +22,12 @@ public class DownloadManager {
     private long downloadedSize;
     private URL urlObj;
     private String extention;
+    private FileData fileData;
     private int DEFAULT_PART = 8;
     private List<ArrayList> parts;
     
     public DownloadManager(String url){
-        this.url = url;
-        this.fileName = "";
-        this.mimeType = "";
-        this.fileSize = 0;
-        this.downloadedSize = 0;
-        
+        this.fileData = new FileData(url);
     }
 
     /*
@@ -152,7 +148,7 @@ public class DownloadManager {
             FileInputStream fis = new FileInputStream(obj.getFileName());
             BufferedInputStream bis = new BufferedInputStream(fis);
 
-            FileOutputStream fos = new FileOutputStream(this.fileName, true);
+            FileOutputStream fos = new FileOutputStream(this.fileData.getFileName(), true);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
 
             int data;
@@ -172,20 +168,21 @@ public class DownloadManager {
 
 
     public void download(){
-        setMetadata();
-        this.parts= this.divideParts(fileSize,4); // this.DEFAULT_PART
-        System.out.println("The file Size: "+ this.fileSize);
+        this.fileData.setMetadata();
+        this.parts= this.divideParts(this.fileData.getFileSize(),4); // this.DEFAULT_PART
+        System.out.println("The file Size: "+ this.fileData.getFileSize());
         System.out.println(this.parts.toString());
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
 
         List<DownloadPart> downloadParts = new ArrayList<>();
-
+        String fileName = this.fileData.getFileName();
+        URL url = this.fileData.getUrlObj();
         for(int i=0; i<this.parts.size(); i++){
             ArrayList<Integer> part = this.parts.get(i);
             System.out.println("Part: "+i+" Start: "+part.get(0)+" End: "+part.get(1));
-            String partFileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')) + "_" + i + this.fileName.substring(this.fileName.lastIndexOf('.'), this.fileName.length());
+            String partFileName = fileName.substring(0, fileName.lastIndexOf('.')) + "_" + i + fileName.substring(fileName.lastIndexOf('.'), fileName.length());
             System.out.println("Part File Name: "+partFileName);
-            DownloadPart downloadPart = new DownloadPart(this.urlObj,partFileName,"/",part.get(0),part.get(1));
+            DownloadPart downloadPart = new DownloadPart(url,partFileName,"/",part.get(0),part.get(1));
             downloadPart.start();
             downloadParts.add(downloadPart);
                 
