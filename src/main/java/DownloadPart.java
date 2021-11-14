@@ -5,6 +5,7 @@ import java.net.*;
 import java.nio.CharBuffer;
 import java.lang.Thread;
 import javax.net.ssl.HttpsURLConnection;
+import src.main.java.*;
 
 
 /*
@@ -23,6 +24,8 @@ public class DownloadPart extends Thread {
     private int rangeStart;
     private int rangeEnd;
     private boolean append;
+    private byte[] data;
+    private FileData fileData;
 
    /*
     * Constructor for DownloadPart class.
@@ -33,13 +36,18 @@ public class DownloadPart extends Thread {
     * @param rangeStart: start of the range of the file to be downloaded.
     * @param rangeEnd: end of the range of the file to be downloaded.
     */
-    public DownloadPart(URL url, String fileName, String savePath, int rangeStart, int rangeEnd) {
-        this.url = url;
+    public DownloadPart(FileData fileData, String fileName, int rangeStart, int rangeEnd) {
+        this.url = fileData.getUrlObj();
         this.fileName = fileName;
-        this.savePath = savePath;
+        this.savePath = fileData.getPartFileSavePath();
         this.rangeStart = rangeStart;
         this.rangeEnd = rangeEnd;
-        this.fileSize = rangeEnd - rangeStart;
+        if (rangeStart == 0) {
+            this.fileSize = rangeEnd;
+        } else {
+            this.fileSize = rangeEnd - rangeStart;
+        }
+        
         this.downloadedSize = 0;
         System.out.println("\n\nDownloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
     }
@@ -54,7 +62,7 @@ public class DownloadPart extends Thread {
     * @return: true if the file is downloaded successfully, false otherwise.
     */
     private boolean downloadContent( BufferedInputStream bis, BufferedOutputStream bos) throws IOException {
-        byte[] data = new byte[this.fileSize];
+        this.data = new byte[this.fileSize];
         int bytesRead = 0;
         int bytesFrom = 0;
         int toBeRead = 1378; // 1378 bytes buffer size
@@ -64,7 +72,7 @@ public class DownloadPart extends Thread {
 
         if(fileSize<toBeRead) // if the file size is less than the buffer size
             toBeRead = fileSize;
-        System.out.println("Downloading to be read" + toBeRead);
+        System.out.println("Downloading to be read " + toBeRead);
 
         while((bytesRead = bis.read(data, bytesFrom, toBeRead)) >0){ // read the input stream
             System.out.println("Reading: " + bytesFrom + " till: " + toBeRead + " Now read: "+bytesRead);
@@ -79,6 +87,30 @@ public class DownloadPart extends Thread {
         }
         
         return true;
+    }
+
+    /*
+     * Saves the file to the local file system.
+     * @return: true if the file is saved successfully, false otherwise.
+     */
+    private boolean saveFile() {
+        File file = new File(this.savePath + this.fileName);
+        
+        try {
+            // create the output stream
+            FileOutputStream fos = new FileOutputStream(this.fileName,this.append);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            bos.write(this.data);
+            
+            bos.flush();
+            bos.close();
+            fos.close();
+            //bis.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
    /* The function checks if binaries exists in the directory. if so, then the download resumes from the last point.
@@ -101,7 +133,7 @@ public class DownloadPart extends Thread {
             }
             System.out.println("fileName" + this.fileName);
             // create the output stream
-            FileOutputStream fos = new FileOutputStream(this.fileName,this.append);
+            FileOutputStream fos = new FileOutputStream(this.savePath + this.fileName,this.append);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             long existingFileSize = fos.getChannel().size();
 
@@ -129,6 +161,10 @@ public class DownloadPart extends Thread {
             e.printStackTrace();
         }
         return ;
+    }
+
+    public byte[] getData() {
+        return data;
     }
 
 }

@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import src.main.java.*;
 
+
 public class FileData {
     
     private String url;
@@ -15,6 +16,9 @@ public class FileData {
     private URL urlObj;
     private String extention;
     private byte[] buffer;
+    private String filePath = "";
+    private String partFileSavePath = System.getProperty("user.dir") + "\\src\\main\\resources\\";
+    private DownloadStatus status;
 
     public FileData(String url){
         this.url = url;
@@ -22,6 +26,7 @@ public class FileData {
         this.mimeType = "";
         this.fileSize = 0;
         this.downloadedSize = 0;
+        this.status = DownloadStatus.NOT_STARTED;
         
     }
 
@@ -91,6 +96,7 @@ public class FileData {
             URLConnection conn = urlObj.openConnection();
             this.mimeType = conn.getContentType();
             this.fileSize = conn.getContentLength();
+            this.buffer = new byte[this.fileSize];
             System.out.println("the file size :: "+ conn.getHeaderField("content-length"));
             System.out.println("the file size :: " + this.fileSize);
             
@@ -100,6 +106,41 @@ public class FileData {
             System.out.println("IOException: " + e.getMessage());
         }
         return ;
+    }
+
+    /*
+     * This method is responsible joining the downloaded bytes from each part buffer.
+     * 
+     * @param: partBuffer - the byte array (buffer) of the part file.
+     * @return: treu if the part file is successfully joined.
+     */
+    public boolean joinBytes(byte[] partBuffer){
+        System.arraycopy(partBuffer, 0, this.buffer, this.downloadedSize, partBuffer.length);
+        this.downloadedSize += partBuffer.length;
+        System.out.println("downloaded size: "+this.downloadedSize);
+        if(this.downloadedSize == this.fileSize){
+            this.status = DownloadStatus.FINISHED;
+            this.saveFile();
+        }
+        return true;
+    }
+
+    /*
+     * This method is responsible for saving the file.
+     * 
+     * @param: None
+     * @return: None
+     */
+    public void saveFile(){
+        try{
+            FileOutputStream fos = new FileOutputStream(this.filePath + this.fileName);
+            fos.write(this.buffer);
+            fos.close();
+            this.status = DownloadStatus.DOWNLOADED;
+        }
+        catch(IOException e){
+            System.out.println("IOException: " + e.getMessage());
+        }
     }
 
     public String getFileName(){
@@ -128,6 +169,22 @@ public class FileData {
 
     public URL getUrlObj(){
         return this.urlObj;
+    }
+
+    public String getFilePath(){
+        return this.filePath;
+    }
+
+    public String getPartFileSavePath(){
+        return this.partFileSavePath;
+    }
+
+    public DownloadStatus getStatus(){
+        return this.status;
+    }
+
+    public void setDownloadStatus(DownloadStatus status){
+        this.status = status;
     }
 
 }

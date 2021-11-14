@@ -135,6 +135,7 @@ public class DownloadManager {
             endByte += partSize;
 
             if(i == parts-2){ // last part has remaining bytes
+                System.out.println("last part has remaining bytes");
                 endByte += remainingBytes;
             }
             
@@ -145,19 +146,21 @@ public class DownloadManager {
     private void joinParts(DownloadPart obj){
         try{
             
-            FileInputStream fis = new FileInputStream(obj.getFileName());
-            BufferedInputStream bis = new BufferedInputStream(fis);
+            //FileInputStream fis = new FileInputStream(obj.getFileName());
+            //BufferedInputStream bis = new BufferedInputStream(fis);
 
-            FileOutputStream fos = new FileOutputStream(this.fileData.getFileName(), true);
+            FileOutputStream fos = new FileOutputStream("download.jpg", true);//this.fileData.getFileName()
             BufferedOutputStream bos = new BufferedOutputStream(fos);
 
-            int data;
+            /*int data;
             while((data = bis.read()) != -1){
                 bos.write(data);
             }
+            */
+            fileData.joinBytes(obj.getData());
 
             bos.close();
-            bis.close();
+            //bis.close();
 
         }
         catch(IOException e){
@@ -177,12 +180,13 @@ public class DownloadManager {
         List<DownloadPart> downloadParts = new ArrayList<>();
         String fileName = this.fileData.getFileName();
         URL url = this.fileData.getUrlObj();
+        this.fileData.setDownloadStatus(DownloadStatus.DOWNLOADING);
         for(int i=0; i<this.parts.size(); i++){
             ArrayList<Integer> part = this.parts.get(i);
             System.out.println("Part: "+i+" Start: "+part.get(0)+" End: "+part.get(1));
             String partFileName = fileName.substring(0, fileName.lastIndexOf('.')) + "_" + i + fileName.substring(fileName.lastIndexOf('.'), fileName.length());
             System.out.println("Part File Name: "+partFileName);
-            DownloadPart downloadPart = new DownloadPart(url,partFileName,"/",part.get(0),part.get(1));
+            DownloadPart downloadPart = new DownloadPart(this.fileData,partFileName,part.get(0),part.get(1));
             downloadPart.start();
             downloadParts.add(downloadPart);
                 
@@ -198,6 +202,8 @@ public class DownloadManager {
                 System.out.println("InterruptedException: " + e.getMessage());
             }
         }
+
+        fileData.saveFile();
 
         return;
     }
