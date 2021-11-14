@@ -203,7 +203,13 @@ public class DownloadManager {
             }
         }
 
-        fileData.saveFile();
+        boolean flag = fileData.saveFile();
+        if(flag){
+            for(DownloadPart downloadPart: downloadParts){
+                downloadPart.deleteFile();
+            }
+        }
+        
 
         return;
     }

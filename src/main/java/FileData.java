@@ -131,15 +131,17 @@ public class FileData {
      * @param: None
      * @return: None
      */
-    public void saveFile(){
+    public boolean saveFile(){
         try{
             FileOutputStream fos = new FileOutputStream(this.filePath + this.fileName);
             fos.write(this.buffer);
             fos.close();
             this.status = DownloadStatus.DOWNLOADED;
+            return true;
         }
         catch(IOException e){
             System.out.println("IOException: " + e.getMessage());
+            return false;
         }
     }
 

@@ -163,6 +163,11 @@ public class DownloadPart extends Thread {
         return ;
     }
 
+    public void deleteFile(){
+        File file = new File(this.savePath + this.fileName);
+        file.delete();
+    }
+
     public byte[] getData() {
         return data;
     }
