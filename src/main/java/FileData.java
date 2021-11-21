@@ -60,8 +60,9 @@ public class FileData {
             extentionFromUrl = this.fileName.substring(this.fileName.lastIndexOf('.'), this.fileName.length()); // get the extention from the URL
             this.fileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')); // remove the extension if any
         }
-        
-        if(MimeTypes.lookupMimeType(extentionFromUrl) == null){
+        System.out.println("ex from url: " + extentionFromUrl);
+
+        if(MimeTypes.lookupMimeType(extentionFromUrl.substring(1,extentionFromUrl.length())) == null){
             extentionFromUrl = "";
         }
         System.out.println("extention from url: "+extentionFromUrl);
@@ -74,11 +75,13 @@ public class FileData {
         if(mimeType.contains(";")){
             this.mimeType = mimeType.substring(0, mimeType.indexOf(";"));
         }
-        System.out.println("mimeType: "+mimeType+"mime: ");
+        System.out.println("mimeType: "+mimeType);
         // set extention
         this.extention = MimeTypes.getDefaultExt(this.mimeType);
+        System.out.println("extention: "+this.extention);
         if(extentionFromUrl.length() > 0 && (this.extention.length() == 0 || this.extention.equals("unknown"))){
             this.extention = extentionFromUrl;
+            System.out.println("extention from url: "+extentionFromUrl);
         }
         System.out.println("File name: " + this.fileName + "." + this.extention + " Mime: " + this.mimeType);
         this.fileName = this.fileName + "." + this.extention;

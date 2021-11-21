@@ -149,7 +149,7 @@ public class DownloadManager {
             //FileInputStream fis = new FileInputStream(obj.getFileName());
             //BufferedInputStream bis = new BufferedInputStream(fis);
 
-            FileOutputStream fos = new FileOutputStream("download.jpg", true);//this.fileData.getFileName()
+            FileOutputStream fos = new FileOutputStream("download.mp4", true);//this.fileData.getFileName()
             BufferedOutputStream bos = new BufferedOutputStream(fos);
 
             /*int data;

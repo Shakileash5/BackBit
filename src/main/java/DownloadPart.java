@@ -75,13 +75,13 @@ public class DownloadPart extends Thread {
         System.out.println("Downloading to be read " + toBeRead);
 
         while((bytesRead = bis.read(data, bytesFrom, toBeRead)) >0){ // read the input stream
-            System.out.println("Reading: " + bytesFrom + " till: " + toBeRead + " Now read: "+bytesRead);
+            //System.out.println("Reading: " + bytesFrom + " till: " + toBeRead + " Now read: "+bytesRead);
             bytesFrom += bytesRead;
             if((fileSize-bytesFrom) < toBeRead){ // if the remaining size is less than the buffer size
                 toBeRead = fileSize - bytesFrom;
             }
             
-            System.out.println("Writing: " + bytesWritten + " till: " + bytesRead);
+            //System.out.println("Writing: " + bytesWritten + " till: " + bytesRead);
             bos.write(data,bytesWritten,bytesRead);
             bytesWritten += bytesRead;
         }

@@ -118,6 +118,7 @@ public static final String MIME_VIDEO_VND_MPEGURL = "video/vnd.mpegurl";
 public static final String MIME_VIDEO_X_MSVIDEO = "video/x-msvideo";
 public static final String MIME_VIDEO_X_MS_WMV = "video/x-ms-wmv";
 public static final String MIME_VIDEO_X_SGI_MOVIE = "video/x-sgi-movie";
+public static final String MIME_VIDEO_MP4 = "video/mp4";
 public static final String MIME_X_CONFERENCE_X_COOLTALK = "x-conference/x-cooltalk";
 
 private static HashMap<String, String> mimeTypeMapping;
@@ -284,6 +285,7 @@ static {
             put1("au", MIME_AUDIO_BASIC);
             put1("snd", MIME_AUDIO_BASIC);
             put1("wav", MIME_AUDIO_X_WAV);
+            put1("mp4", MIME_VIDEO_MP4);
             put1("mov", MIME_VIDEO_QUICKTIME);
             put1("qt", MIME_VIDEO_QUICKTIME);
             put1("mpeg", MIME_VIDEO_MPEG);
@@ -419,6 +421,7 @@ static {
             put1(MIME_AUDIO_X_WAV, "wav");
             put1(MIME_VIDEO_QUICKTIME, "mov");
             put1(MIME_VIDEO_MPEG, "mpg");
+            put1(MIME_VIDEO_MP4,"mp4");
             put1(MIME_APPLICATION_MSWORD, "doc");
             put1(MIME_APPLICATION_MSWORD_2007, "docx");
             put1(MIME_APPLICATION_VND_TEXT, "odt");
