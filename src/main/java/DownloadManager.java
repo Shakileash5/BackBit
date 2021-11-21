@@ -29,84 +29,7 @@ public class DownloadManager {
     public DownloadManager(String url){
         this.fileData = new FileData(url);
     }
-
-    /*
-     * This method is responsible for creating short hash the URL.
-     * the short hash is used to create a unique file name, if file name is not present in the url.
-     * 
-     * @param: url - the URL of the file to be downloaded.
-     * @return: hash - the short hash of the URL.
-     */
-    private String getHash(String url){
-        char[] characters=url.toCharArray();
-        Arrays.sort(characters);
-        return Integer.toString(new String(characters).hashCode());
-    }
-
-    /*
-     * This method is responsible for finding and creating extension of the file
-     * and also creating the file name.
-     * 
-     * @param: url - the URL of the file to be downloaded.
-     * @param: mimeType - the mime type of the file.
-     * @return: None
-     */
-    private void setFileData(String url, String mimeType){
-        String extentionFromUrl = new String();
-
-        // Get the file name from the URL
-        this.fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
-        if(this.fileName.lastIndexOf('.') != -1){
-            extentionFromUrl = this.fileName.substring(this.fileName.lastIndexOf('.'), this.fileName.length()); // get the extention from the URL
-            this.fileName = this.fileName.substring(0, this.fileName.lastIndexOf('.')); // remove the extension if any
-        }
-        
-        if(MimeTypes.lookupMimeType(extentionFromUrl) == null){
-            extentionFromUrl = "";
-        }
-        System.out.println("extention from url: "+extentionFromUrl);
-        if(extentionFromUrl.length()<0 || extentionFromUrl.equals("")){
-            System.out.println("No extention found");
-            this.fileName = "download_" + this.getHash(url); // if no extention found, use the hash of the url as the file name
-        }
-
-        // clean mimeType
-        if(mimeType.contains(";")){
-            this.mimeType = mimeType.substring(0, mimeType.indexOf(";"));
-        }
-        System.out.println("mimeType: "+mimeType+"mime: ");
-        // set extention
-        this.extention = MimeTypes.getDefaultExt(this.mimeType);
-        if(extentionFromUrl.length() > 0 && (this.extention.length() == 0 || this.extention.equals("unknown"))){
-            this.extention = extentionFromUrl;
-        }
-        System.out.println("File name: " + this.fileName + "." + this.extention + " Mime: " + this.mimeType);
-        this.fileName = this.fileName + "." + this.extention;
-    }
     
-    /*
-     * This method is responsible for handling the metadata of the file.
-     * 
-     * @param: None
-     * @return: None
-     */
-    private void setMetadata(){
-        try{
-            this.urlObj = new URL(url);
-            URLConnection conn = urlObj.openConnection();
-            this.mimeType = conn.getContentType();
-            this.fileSize = conn.getContentLength();
-            System.out.println("the file size :: "+ conn.getHeaderField("content-length"));
-            System.out.println("the file size :: " + this.fileSize);
-            
-            this.setFileData(url, mimeType);
-        }
-        catch(IOException e){
-            System.out.println("IOException: " + e.getMessage());
-        }
-        return ;
-    }
-
     /*
      * This method is responsible for dividing the file into equal parts
      * and set ranges for each parts to be downloaded.
@@ -143,6 +66,12 @@ public class DownloadManager {
         return partList;
     }
 
+    /*
+     * This method is responsible for joining each part of the file after downloading.
+     * 
+     * @param: obj - the object of part of file to be joined.
+     * @return: none
+     */
     private void joinParts(DownloadPart obj){
         try{
             
@@ -169,30 +98,41 @@ public class DownloadManager {
         
     }
 
-
+    /*
+     * This method is responsible for dividing the file into equal parts and download each part of the file and join them.
+     * 
+     * @param: none
+     * @return: none
+     */
     public void download(){
+
         this.fileData.setMetadata();
         this.parts= this.divideParts(this.fileData.getFileSize(),4); // this.DEFAULT_PART
         System.out.println("The file Size: "+ this.fileData.getFileSize());
         System.out.println(this.parts.toString());
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
 
-        List<DownloadPart> downloadParts = new ArrayList<>();
+        List<DownloadPart> downloadParts = new ArrayList<>(); // list of download parts
         String fileName = this.fileData.getFileName();
         URL url = this.fileData.getUrlObj();
         this.fileData.setDownloadStatus(DownloadStatus.DOWNLOADING);
-        for(int i=0; i<this.parts.size(); i++){
+
+        for(int i=0; i<this.parts.size(); i++){ // for each part start a new thread to download
             ArrayList<Integer> part = this.parts.get(i);
+            
+            // create name for each part
             System.out.println("Part: "+i+" Start: "+part.get(0)+" End: "+part.get(1));
             String partFileName = fileName.substring(0, fileName.lastIndexOf('.')) + "_" + i + fileName.substring(fileName.lastIndexOf('.'), fileName.length());
             System.out.println("Part File Name: "+partFileName);
+            
+            // start a new thread to download each part
             DownloadPart downloadPart = new DownloadPart(this.fileData,partFileName,part.get(0),part.get(1));
             downloadPart.start();
             downloadParts.add(downloadPart);
                 
         }
         
-        for(DownloadPart downloadPart: downloadParts){
+        for(DownloadPart downloadPart: downloadParts){ // wait for all the threads to finish
             try{
                 downloadPart.join();
                 System.out.println("-------- completed ----------" + downloadPart.getFileName());
@@ -204,7 +144,7 @@ public class DownloadManager {
         }
 
         boolean flag = fileData.saveFile();
-        if(flag){
+        if(flag){ // if file is downloaded successfully delete the parts
             for(DownloadPart downloadPart: downloadParts){
                 downloadPart.deleteFile();
             }
