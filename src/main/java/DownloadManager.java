@@ -46,16 +46,19 @@ public class DownloadManager {
         int partSize = fileSize/parts; // size of each part
         int remainingBytes = fileSize%parts; // remaining bytes after dividing the file into parts
         int startByte = 0;
-        int endByte = partSize;
+        int endByte = partSize - 1;
 
         for(int i=0; i<parts; i++){
             part = new ArrayList<>();
+
+            startByte = partSize * i;
+            endByte = startByte + partSize; 
+            
             part.add(startByte);
             part.add(endByte);
-
             partList.add(part);
-            startByte = endByte + 1;
-            endByte += partSize;
+            
+            
 
             if(i == parts-2){ // last part has remaining bytes
                 System.out.println("last part has remaining bytes");

@@ -118,6 +118,7 @@ public class FileData {
      * @return: treu if the part file is successfully joined.
      */
     public boolean joinBytes(byte[] partBuffer){
+        System.out.println("Item to be stitched :: " + partBuffer.length);
         System.arraycopy(partBuffer, 0, this.buffer, this.downloadedSize, partBuffer.length);
         this.downloadedSize += partBuffer.length;
         System.out.println("downloaded size: "+this.downloadedSize);
