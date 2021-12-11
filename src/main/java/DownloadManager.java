@@ -30,6 +30,11 @@ public class DownloadManager {
         this.fileData = new FileData(url);
     }
     
+    public DownloadManager(String url, int parts){
+        this.fileData = new FileData(url);
+        this.DEFAULT_PART = parts;
+    }
+
     /*
      * This method is responsible for dividing the file into equal parts
      * and set ranges for each parts to be downloaded.
@@ -110,7 +115,7 @@ public class DownloadManager {
     public void download(){
 
         this.fileData.setMetadata();
-        this.parts= this.divideParts(this.fileData.getFileSize(),4); // this.DEFAULT_PART
+        this.parts= this.divideParts(this.fileData.getFileSize(),this.DEFAULT_PART); // this.DEFAULT_PART
         System.out.println("The file Size: "+ this.fileData.getFileSize());
         System.out.println(this.parts.toString());
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
