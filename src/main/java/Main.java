@@ -18,6 +18,9 @@ public class Main {
         // Check if the user has entered the help argument
         if(args.length == 1 && (args[0].equals("--h") || args[0].equals("--help"))){
             System.out.println("usage: [--url | --u] [--parts | --p]");
+            System.out.println("--url   | --u: the url to be Downloaded");
+            System.out.println("--parts | --p: the number of parts to split the download into");
+            return;
         }
 
         for(int i = 0; i < args.length; i++){ // Loop through the arguments and assign them to the correct variables
