@@ -5,7 +5,6 @@ import java.net.*;
 import java.util.*;
 import src.main.java.*;
 
-
 public class FileData {
     
     private String url;
@@ -64,9 +63,14 @@ public class FileData {
 
         if(MimeTypes.lookupMimeType(extentionFromUrl.substring(1,extentionFromUrl.length())) == null){
             extentionFromUrl = "";
+            // set extention
+            this.extention = MimeTypes.getDefaultExt(this.mimeType);
+        }
+        else{
+            this.extention = extentionFromUrl;// set extention
         }
         System.out.println("extention from url: "+extentionFromUrl);
-        if(extentionFromUrl.length()<0 || extentionFromUrl.equals("")){
+        if(extentionFromUrl.length()<=0 || extentionFromUrl.equals("")){
             System.out.println("No extention found");
             this.fileName = "download_" + this.getHash(url); // if no extention found, use the hash of the url as the file name
         }
@@ -76,13 +80,14 @@ public class FileData {
             this.mimeType = mimeType.substring(0, mimeType.indexOf(";"));
         }
         System.out.println("mimeType: "+mimeType);
-        // set extention
-        this.extention = MimeTypes.getDefaultExt(this.mimeType);
+        
+        /*
         System.out.println("extention: "+this.extention);
         if(extentionFromUrl.length() > 0 && (this.extention.length() == 0 || this.extention.equals("unknown"))){
             this.extention = extentionFromUrl;
             System.out.println("extention from url: "+extentionFromUrl);
         }
+        */
         System.out.println("File name: " + this.fileName + "." + this.extention + " Mime: " + this.mimeType);
         this.fileName = this.fileName + "." + this.extention;
     }
