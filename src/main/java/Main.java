@@ -4,48 +4,52 @@ import src.main.java.*;
 
 public class Main {
 
+    /*
+     * This function handles the input and output of the program.
+     * It takes in the input from the user as command line arguments.
+     * 
+     * @param args the command line arguments
+     * returns nothing
+     */
     private void computeArguments(String[] args){
         String url = "";
         int parts = 0;
-
+        
+        // Check if the user has entered the help argument
         if(args.length == 1 && (args[0].equals("--h") || args[0].equals("--help"))){
             System.out.println("usage: [--url | --u] [--parts | --p]");
         }
-        if(args.length == 2){
-            if(args[0].equals("--u") || args[0].equals("--url")){
-                url = args[1];
+
+        for(int i = 0; i < args.length; i++){ // Loop through the arguments and assign them to the correct variables
+            if(args[i].equals("--url") || args[i].equals("--u")){
+                if(i + 1 < args.length){
+                    url = args[i + 1];
+                }
             }
-            else if(args[0].equals("--p") || args[0].equals("--parts")){
-                parts = Integer.parseInt(args[1]);
+            if(args[i].equals("--parts") || args[i].equals("--p")){
+                if(i + 1 < args.length){
+                    parts = Integer.parseInt(args[i + 1]);
+                }
             }
         }
 
-        if(args.length == 4){
-            if(args[0].equals("--u") || args[0].equals("--url")){
-                url = args[1];
-                if(args[2].equals("--p") || args[2].equals("--parts")){
-                    parts = Integer.parseInt(args[3]);
-                    
-                }
-            }
-            else if(args[0].equals("--p") || args[0].equals("--parts")){
-                parts = Integer.parseInt(args[1]);
-                if(args[2].equals("--u") || args[2].equals("--url")){
-                    url = args[3];
-                }
-            }
-        }   
+        if(url.length() != 0 ){ // if url is nnot empty, then we can start the program
 
-        System.out.println(url+parts);
-        if(url.length() != 0 ){
-            DownloadManager dm;
-            if(parts != 0){
-                dm = new DownloadManager(url,parts);
+            try{
+                DownloadManager dm;
+                if(parts != 0){ // if parts is specifeid, then we can create a DownloadManager with the specified number of parts
+                    dm = new DownloadManager(url,parts); 
+                }
+                else{
+                    dm = new DownloadManager(url);
+                }
+                
+                dm.download();
             }
-            else{
-                dm = new DownloadManager(url);
+            catch(Exception e){
+                System.out.println("Download Failed \n\n Error: " + e.getMessage());
             }
-            dm.download();
+            
         }
         else{
            System.out.println("The arguments are improper please use [--h | --help]"); 
