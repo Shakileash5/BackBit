@@ -123,7 +123,7 @@ public class DownloadManager {
         List<DownloadPart> downloadParts = new ArrayList<>(); // list of download parts
         String fileName = this.fileData.getFileName();
         URL url = this.fileData.getUrlObj();
-        this.fileData.setDownloadStatus(DownloadStatus.DOWNLOADING);
+        //this.fileData.setDownloadStatus(DownloadStatus.DOWNLOADING);
 
         for(int i=0; i<this.parts.size(); i++){ // for each part start a new thread to download
             ArrayList<Integer> part = this.parts.get(i);
@@ -139,18 +139,19 @@ public class DownloadManager {
             downloadParts.add(downloadPart);
                 
         }
-        
+        this.fileData.setDownloadStatus(DownloadStatus.STARTED);
         for(DownloadPart downloadPart: downloadParts){ // wait for all the threads to finish
             try{
                 downloadPart.join();
-                System.out.println("-------- completed ----------" + downloadPart.getFileName());
+                //System.out.println("-------- completed ----------" + downloadPart.getFileName());
                 this.joinParts(downloadPart);
+                this.fileData.addDownloadedSize(0);
             }
             catch(InterruptedException e){
                 System.out.println("InterruptedException: " + e.getMessage());
             }
         }
-
+        System.out.println("\n-------- completed ----------");
         boolean flag = fileData.saveFile();
         if(flag){ // if file is downloaded successfully delete the parts
             for(DownloadPart downloadPart: downloadParts){

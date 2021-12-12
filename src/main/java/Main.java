@@ -2,6 +2,8 @@ package src.main.java;
 
 import src.main.java.*;
 
+// TODO: Implement the download progress
+
 public class Main {
 
     /*

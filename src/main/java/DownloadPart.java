@@ -42,6 +42,7 @@ public class DownloadPart extends Thread {
         this.savePath = fileData.getPartFileSavePath();
         this.rangeStart = rangeStart;
         this.rangeEnd = rangeEnd;
+        this.fileData = fileData;
         if (rangeStart == 0) {
             this.fileSize = rangeEnd;
         } else {
@@ -67,12 +68,13 @@ public class DownloadPart extends Thread {
         int bytesFrom = 0;
         int toBeRead = 1378; // 1378 bytes buffer size
         int bytesWritten = 0;
+        int count = 0;
         
-        System.out.println("\nDownloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
+        //System.out.println("\nDownloading " + fileName + " from " + url.toString() + "fileSize "+fileSize);
 
         if(fileSize<toBeRead) // if the file size is less than the buffer size
             toBeRead = fileSize;
-        System.out.println("Downloading to be read " + toBeRead);
+        //System.out.println("Downloading to be read " + toBeRead);
 
         while((bytesRead = bis.read(data, bytesFrom, toBeRead)) >0){ // read the input stream
             //System.out.println("Reading: " + bytesFrom + " till: " + toBeRead + " Now read: "+bytesRead);
@@ -84,8 +86,16 @@ public class DownloadPart extends Thread {
             //System.out.println("Writing: " + bytesWritten + " till: " + bytesRead);
             bos.write(data,bytesWritten,bytesRead);
             bytesWritten += bytesRead;
+            if(count == 5){
+                this.fileData.addDownloadedSize(bytesRead);
+                count = 0;
+            }
+            else{
+                count++;
+            }
+            
         }
-        
+
         return true;
     }
 
@@ -131,7 +141,7 @@ public class DownloadPart extends Thread {
             else{
                 this.append = false;
             }
-            System.out.println("fileName" + this.fileName);
+            //System.out.println("fileName" + this.fileName);
             // create the output stream
             FileOutputStream fos = new FileOutputStream(this.savePath + this.fileName,this.append);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
@@ -147,8 +157,8 @@ public class DownloadPart extends Thread {
             //HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
             conn.setRequestProperty("Range", "bytes=" + this.rangeStart + "-" + this.rangeEnd);
             BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-            System.out.println("\n\nDownloading code..."+conn.getContentLength());
-            System.out.println("Downloading range... "+ this.rangeStart + "-" + this.rangeEnd);
+            //System.out.println("\n\nDownloading code..."+conn.getContentLength());
+            //System.out.println("Downloading range... "+ this.rangeStart + "-" + this.rangeEnd);
             // download the file
             this.downloadContent(bis, bos);
 

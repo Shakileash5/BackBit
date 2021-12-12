@@ -18,6 +18,7 @@ public class FileData {
     private String filePath = "";
     private String partFileSavePath = System.getProperty("user.dir") + "\\src\\main\\resources\\";
     private DownloadStatus status;
+    private int toPrintDownloadSize;
 
     public FileData(String url){
         this.url = url;
@@ -25,6 +26,7 @@ public class FileData {
         this.mimeType = "";
         this.fileSize = 0;
         this.downloadedSize = 0;
+        this.toPrintDownloadSize = 0;
         this.status = DownloadStatus.NOT_STARTED;
         
     }
@@ -123,10 +125,10 @@ public class FileData {
      * @return: treu if the part file is successfully joined.
      */
     public boolean joinBytes(byte[] partBuffer){
-        System.out.println("Item to be stitched :: " + partBuffer.length);
+        //System.out.println("Item to be stitched :: " + partBuffer.length);
         System.arraycopy(partBuffer, 0, this.buffer, this.downloadedSize, partBuffer.length);
         this.downloadedSize += partBuffer.length;
-        System.out.println("downloaded size: "+this.downloadedSize);
+        //System.out.println("downloaded size: "+this.downloadedSize);
         if(this.downloadedSize == this.fileSize){
             this.status = DownloadStatus.FINISHED;
             this.saveFile();
@@ -176,6 +178,35 @@ public class FileData {
 
     public int getDownloadedSize(){
         return this.downloadedSize;
+    }
+
+    public void addDownloadedSize(int size){
+        if(this.status == DownloadStatus.STARTED ){
+            System.out.print("\nContent Downloaded: " + this.toPrintDownloadSize + "% complete"); // Move cursor up one line
+            this.setDownloadStatus(DownloadStatus.DOWNLOADING);
+        }
+        this.toPrintDownloadSize += size;
+        if(this.downloadedSize>this.toPrintDownloadSize){
+            this.toPrintDownloadSize = this.downloadedSize;
+        }
+
+        int percentage = (int)((this.toPrintDownloadSize*100)/this.fileSize);
+
+        //System.out.print("\033[2J"); // Erase line content
+        for(int i=0; i<11; i++){
+            System.out.print("\b");
+        }
+        if (percentage > 10)
+        {
+            System.out.print('\b');
+        }
+        if (percentage > 100)
+        {
+            System.out.print('\b');
+        }
+        System.out.print(percentage);
+        System.out.print("% complete");
+        
     }
 
     public URL getUrlObj(){
