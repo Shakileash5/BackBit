@@ -3,6 +3,7 @@ package src.main.java;
 import src.main.java.*;
 import java.nio.file.Files;
 import java.io.*;
+import java.net.URI;
 
 // TODO: Implement the download progress
 
@@ -43,15 +44,21 @@ public class Main {
             if(args[i].equals("--output") || args[i].equals("--o")){
                 if(i + 1 < args.length){
                     output = args[i + 1];
+                    
+                    // handle space in file path
+                    if(output.contains(" ")){
+                        output = output.replace(" ", "%20");
+                    }
                     if(Files.exists(java.nio.file.Paths.get(output)) == false){
                         System.out.println("The output file does not exist");
                         return;
                     }
                     else{
                         // remove / from output path
+                        //output = output.replaceAll("\\", "/");
                         System.out.println(output);
-                        if(output.charAt(output.length() - 1) != '\\'){
-                            output = output + "\\";
+                        if(output.charAt(output.length() - 1) != '/'){
+                            output = output + "/";
                         }
                         
                         /*if(output.indexOf("/") != -1){
