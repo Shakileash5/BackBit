@@ -20,7 +20,7 @@ public class FileData {
     private DownloadStatus status;
     private int toPrintDownloadSize;
 
-    public FileData(String url){
+    public FileData(String url, String filePath){
         this.url = url;
         this.fileName = "";
         this.mimeType = "";
@@ -28,7 +28,7 @@ public class FileData {
         this.downloadedSize = 0;
         this.toPrintDownloadSize = 0;
         this.status = DownloadStatus.NOT_STARTED;
-        
+        this.filePath = filePath;  
     }
 
     /*

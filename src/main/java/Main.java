@@ -1,6 +1,8 @@
 package src.main.java;
 
 import src.main.java.*;
+import java.nio.file.Files;
+import java.io.*;
 
 // TODO: Implement the download progress
 
@@ -16,12 +18,14 @@ public class Main {
     private void computeArguments(String[] args){
         String url = "";
         int parts = 0;
+        String output = "";
         
         // Check if the user has entered the help argument
         if(args.length == 1 && (args[0].equals("--h") || args[0].equals("--help"))){
-            System.out.println("usage: [--url | --u] [--parts | --p]");
-            System.out.println("--url   | --u: the url to be Downloaded");
-            System.out.println("--parts | --p: the number of parts to split the download into");
+            System.out.println("usage: [--url | --u] [--parts | --p] [--output | --o] ");
+            System.out.println("--url    | --u: the url to be Downloaded");
+            System.out.println("--parts  | --p: the number of parts to split the download into");
+            System.out.println("--output | --o: the output file location");
             return;
         }
 
@@ -36,6 +40,45 @@ public class Main {
                     parts = Integer.parseInt(args[i + 1]);
                 }
             }
+            if(args[i].equals("--output") || args[i].equals("--o")){
+                if(i + 1 < args.length){
+                    output = args[i + 1];
+                    if(Files.exists(java.nio.file.Paths.get(output)) == false){
+                        System.out.println("The output file does not exist");
+                        return;
+                    }
+                    else{
+                        // remove / from output path
+                        System.out.println(output);
+                        if(output.charAt(output.length() - 1) != '\\'){
+                            output = output + "\\";
+                        }
+                        
+                        /*if(output.indexOf("/") != -1){
+                            String[] arrOfStr = output.split("/");
+                        }
+                        else if(output.indexOf("\\") != -1){
+                            String[] arrOfStr = output.split("\\");
+                        }
+                        else{
+                            System.out.println("The output file does not exist");
+                            return;
+                        }
+                        System.out.println(File.separator);
+                        try{
+                            FileOutputStream fos = new FileOutputStream(output+"download.png");
+                        //fos.write(this.buffer);
+                        fos.close();
+                        }
+                        catch(IOException e){
+                            System.out.println("Error writing to file");
+                        }
+                        */
+
+                    }
+                }
+            }
+
         }
 
         if(url.length() != 0 ){ // if url is nnot empty, then we can start the program
@@ -43,10 +86,10 @@ public class Main {
             try{
                 DownloadManager dm;
                 if(parts != 0){ // if parts is specifeid, then we can create a DownloadManager with the specified number of parts
-                    dm = new DownloadManager(url,parts); 
+                    dm = new DownloadManager(url,output,parts); 
                 }
                 else{
-                    dm = new DownloadManager(url);
+                    dm = new DownloadManager(url,output);
                 }
                 
                 dm.download();

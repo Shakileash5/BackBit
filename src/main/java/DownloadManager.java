@@ -26,12 +26,12 @@ public class DownloadManager {
     private int DEFAULT_PART = 8;
     private List<ArrayList> parts;
     
-    public DownloadManager(String url){
-        this.fileData = new FileData(url);
+    public DownloadManager(String url, String filePath){
+        this.fileData = new FileData(url, filePath);
     }
     
-    public DownloadManager(String url, int parts){
-        this.fileData = new FileData(url);
+    public DownloadManager(String url, String filePath, int parts){
+        this.fileData = new FileData(url, filePath);
         this.DEFAULT_PART = parts;
     }
 
@@ -63,8 +63,6 @@ public class DownloadManager {
             part.add(endByte);
             partList.add(part);
             
-            
-
             if(i == parts-2){ // last part has remaining bytes
                 System.out.println("last part has remaining bytes");
                 endByte += remainingBytes;
